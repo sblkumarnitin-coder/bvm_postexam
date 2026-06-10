@@ -277,6 +277,7 @@
         .refresh-btn    { background: var(--teal);   color: #fff; }
 
         .teacher-btn   { background: #1d4e89;  color: #fff; }
+        .seating-btn   { background: #0f766e;  color: #fff; }
         .print-btn      {
             background: transparent;
             color: var(--gold);
@@ -439,6 +440,96 @@
             overflow-x: auto;
         }
         .report-sheet { display: none; }
+        .seating-sheet { display: none; padding: 22px; background: #fff; color: #000; }
+        .seating-title {
+            text-align: center;
+            color: #000;
+            margin-bottom: 14px;
+            line-height: 1.25;
+        }
+        .seating-title h2 {
+            font-family: var(--font-d);
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .seating-title h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .seating-title h4 {
+            font-size: .95rem;
+            font-weight: 600;
+        }
+        .seating-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            border: 1.5px solid #111;
+            border-right: none;
+            border-bottom: none;
+            background: #fff;
+        }
+        .seating-room {
+            min-height: 116px;
+            border-right: 1.5px solid #111;
+            border-bottom: 1.5px solid #111;
+            display: flex;
+            flex-direction: column;
+            break-inside: avoid;
+        }
+        .seating-room-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: .86rem;
+            padding: 4px 6px 3px;
+            border-bottom: 1px solid #111;
+            letter-spacing: .5px;
+        }
+        .seating-room-body {
+            flex: 1;
+            padding: 7px 10px 2px;
+        }
+        .seating-row {
+            display: grid;
+            grid-template-columns: 36px 42px 34px 26px 34px 18px 34px;
+            gap: 6px;
+            align-items: baseline;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: .9rem;
+            line-height: 1.45;
+            white-space: nowrap;
+        }
+        .seating-row .eq { text-align: center; }
+        .seating-row .num,
+        .seating-row .count { text-align: right; }
+        .seating-total {
+            margin-top: auto;
+            padding: 2px 10px 5px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 24px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: .95rem;
+            font-weight: 700;
+        }
+        .seating-signatures {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 18px;
+            padding: 0 44px;
+            color: #000;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-weight: 700;
+            text-align: center;
+        }
+        .seating-signatures .role {
+            display: block;
+            margin-top: 2px;
+            font-size: .92rem;
+        }
 
         /* Sheet sub-header */
         .sheet-header {
@@ -616,12 +707,28 @@
 
             /* ── Print container: no border, no padding, full width ── */
             .print-container {
-                display: block !important;
+                display: none !important;
                 border: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 background: white !important;
                 width: 100% !important;
+            }
+
+            body.print-collection #printContainer,
+            body.print-issuance #printContainer,
+            body.print-report #printContainer,
+            body.print-seating #printContainer,
+            body.print-teacher #teacherReportContainer {
+                display: block !important;
+            }
+
+            body.print-collection #teacherReportContainer,
+            body.print-issuance #teacherReportContainer,
+            body.print-report #teacherReportContainer,
+            body.print-seating #teacherReportContainer,
+            body.print-teacher #printContainer {
+                display: none !important;
             }
 
             /* ── School header: compact, centred ── */
@@ -663,14 +770,14 @@
             /* Default: hide all three */
             .collection-sheet,
             .issuance-sheet,
-            .report-sheet {
+            .report-sheet,
+            .seating-sheet {
                 display: none !important;
             }
-            /* Show only the one that is NOT display:none in the DOM
-               (the active sheet is set to display:block by JS) */
-            .collection-sheet[style*="display: block"],
-            .issuance-sheet[style*="display: block"],
-            .report-sheet[style*="display: block"] {
+            body.print-collection #collectionSheet,
+            body.print-issuance #issuanceSheet,
+            body.print-report #reportSheet,
+            body.print-seating #seatingSheet {
                 display: block !important;
                 border: none !important;
                 border-radius: 0 !important;
@@ -763,22 +870,17 @@
             }
 
             /* ── COLLECTION SHEET column widths (8 cols) ── */
-            .collection-sheet table th:nth-child(1),
-            .collection-sheet table td:nth-child(1) { width: 30%; }   /* CLASS */
-            .collection-sheet table th:nth-child(2),
-            .collection-sheet table td:nth-child(2) { width: 30%; }   /* ROOM */
-            .collection-sheet table th:nth-child(3),
-            .collection-sheet table td:nth-child(3) { width: 50%; }   /* FROM */
-            .collection-sheet table th:nth-child(4),
-            .collection-sheet table td:nth-child(4) { width: 50%; }   /* TO */
-            .collection-sheet table th:nth-child(5),
-            .collection-sheet table td:nth-child(5) { width: 50%; vertical-align: top !important; }  /* TOTAL */
-            .collection-sheet table th:nth-child(6),
-            .collection-sheet table td:nth-child(6) { width: 58%; }  /* ABSENTEES */
-            .collection-sheet table th:nth-child(7),
-            .collection-sheet table td:nth-child(7) { width: 18%; }   /* COPIES */
-            .collection-sheet table th:nth-child(8),
-            .collection-sheet table td:nth-child(8) { width: 10%; }  /* SIGN */
+            #collectionSheet table { table-layout: fixed !important; }
+            #collectionSheet col.col-class { width: 11%; }
+            #collectionSheet col.col-room { width: 8%; }
+            #collectionSheet col.col-from { width: 9%; }
+            #collectionSheet col.col-to { width: 9%; }
+            #collectionSheet col.col-total { width: 12%; }
+            #collectionSheet col.col-absentees { width: 25%; }
+            #collectionSheet col.col-copies { width: 9%; }
+            #collectionSheet col.col-sign { width: 17%; }
+
+            .collection-sheet table td:nth-child(5) { vertical-align: top !important; }
 
             /* Roll division inside TOTAL cell (collection sheet) */
             .collection-sheet table td:nth-child(5) div {
@@ -839,6 +941,47 @@
             .report-sheet table td:nth-child(5) { width: 10%; }  /* Room */
             .report-sheet table th:nth-child(6),
             .report-sheet table td:nth-child(6) { width: 22%; }  /* Date */
+
+            #seatingSheet {
+                color: #000 !important;
+                background: white !important;
+            }
+            .seating-title { margin-bottom: 8px !important; }
+            .seating-title h2 { font-size: 16pt !important; }
+            .seating-title h3 { font-size: 11pt !important; }
+            .seating-title h4 { font-size: 10pt !important; }
+            .seating-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                border-color: #000 !important;
+            }
+            .seating-room {
+                min-height: 90px !important;
+                border-color: #000 !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .seating-room-title {
+                font-size: 8.5pt !important;
+                padding: 2px 4px !important;
+                border-color: #000 !important;
+            }
+            .seating-room-body { padding: 4px 6px 0 !important; }
+            .seating-row {
+                grid-template-columns: 24px 31px 22px 18px 26px 13px 25px !important;
+                gap: 4px !important;
+                font-size: 8.5pt !important;
+                line-height: 1.25 !important;
+            }
+            .seating-total {
+                font-size: 8.5pt !important;
+                padding: 1px 6px 3px !important;
+                gap: 16px !important;
+            }
+            .seating-signatures {
+                margin-top: 12px !important;
+                padding: 0 36px !important;
+                font-size: 9pt !important;
+            }
 
             /* ── TEACHER REPORT — override ALL inline dark styles for print ── */
             #teacherReportContent * {
@@ -954,6 +1097,8 @@
                     <button class="collection-btn" onclick="showCollectionSheet()">📋 Collection Sheet</button>
                     <button class="issuance-btn" onclick="showIssuanceSheet()">📝 Issuance Sheet</button>
                     <button class="report-btn" onclick="showReportSheet()">📊 Report</button>
+                    <button class="seating-btn" onclick="showSeatingPlan('III-VIII')">Seating III-VIII</button>
+                    <button class="seating-btn" onclick="showSeatingPlan('IX-XII')">Seating IX-XII</button>
                     <button class="refresh-btn" onclick="refreshAbsentees()">🔄 Refresh Absentees</button>
                     <button class="teacher-btn" onclick="showTeacherReport()">👩‍🏫 Teacher Report</button>
                     <button class="print-btn" onclick="doPrint()">🖨️ Print</button>
@@ -1121,6 +1266,11 @@
                 </div>
                 <button class="export-btn" onclick="exportReportToJPG()">📸 Save as JPG</button>
             </div>
+
+            <!-- Seating Plan -->
+            <div id="seatingSheet" class="seating-sheet" style="display: none;">
+                <!-- Content will be populated by JavaScript -->
+            </div>
         </div>
         
         <div class="footer">
@@ -1139,9 +1289,21 @@
 
             const trContent = document.getElementById('teacherReportContent');
             const isTeacherReport = trContent && document.getElementById('teacherReportContainer').style.display !== 'none';
+            const printMode = isTeacherReport ? 'teacher' : currentView;
+            const printClass = `print-${printMode}`;
+            document.body.classList.add(printClass);
+            let seatingPrintStyle = null;
+            if (printMode === 'seating') {
+                seatingPrintStyle = document.createElement('style');
+                seatingPrintStyle.id = 'seatingPrintPageStyle';
+                seatingPrintStyle.textContent = '@media print { @page { size: A4 landscape; margin: 0.6cm; } }';
+                document.head.appendChild(seatingPrintStyle);
+            }
 
             function restoreBtn(){
                 if(printBtn){ printBtn.disabled=false; printBtn.style.opacity='1'; }
+                document.body.classList.remove(printClass);
+                if (seatingPrintStyle) seatingPrintStyle.remove();
             }
 
             if (!isTeacherReport) {
@@ -1187,6 +1349,8 @@
         window.addEventListener('afterprint', function(){
             var printBtn = document.querySelector('.print-btn');
             if(printBtn){ printBtn.disabled=false; printBtn.style.opacity='1'; }
+            document.body.classList.remove('print-collection', 'print-issuance', 'print-report', 'print-seating', 'print-teacher', 'print-missing');
+            document.getElementById('seatingPrintPageStyle')?.remove();
         });
         const WORKBOOK_A_ID = '1PdwXDCW20w8qlW8yVbGyz4NuzV-il2wKsOUPQgW0J7E';
         const WORKBOOK_B_ID = '1dL-YdDxdF778Vnut90Rd2cRLQ_B7tlMKL1BsyXp0EYE';
@@ -1221,6 +1385,9 @@
             'X-A': 25, 'X-B': 26, 'XI-A': 27, 'XI-B': 28, 'XII-A': 29, 'XII-B': 30
         };
 
+        let currentSeatingPlanGroup = 'III-VIII';
+        let currentSeatingExamName = '';
+
         // Initialize the application
         document.addEventListener('DOMContentLoaded', async () => {
             await loadExamName();
@@ -1240,6 +1407,8 @@
                     displayIssuanceSheet();
                 } else if (currentView === 'report') {
                     displayReportSheet();
+                } else if (currentView === 'seating') {
+                    displaySeatingPlan();
                 }
             });
             
@@ -1252,6 +1421,8 @@
                     displayIssuanceSheet();
                 } else if (currentView === 'report') {
                     displayReportSheet();
+                } else if (currentView === 'seating') {
+                    displaySeatingPlan();
                 }
             });
             
@@ -1271,6 +1442,8 @@
                 if (data.values && data.values[0] && data.values[0][0]) {
                     examName = data.values[0][0];
                     document.getElementById('examName').textContent = examName;
+                    const printExamName = document.querySelector('.print-exam-name');
+                    if (printExamName) printExamName.textContent = examName;
                 }
             } catch (error) {
                 console.error('Error loading exam name:', error);
@@ -2038,6 +2211,7 @@
             document.getElementById('printContainer').style.display = 'none';
             document.getElementById('issuanceSheet').style.display = 'none';
             document.getElementById('reportSheet').style.display = 'none';
+            document.getElementById('seatingSheet').style.display = 'none';
             document.getElementById('summaryStats').style.display = 'flex';
             document.getElementById('missingRoomsList').style.display = 'block';
             
@@ -2184,6 +2358,7 @@
             currentView = 'collection';
             document.getElementById('sheetTitle').textContent = 'COLLECTION SHEET';
             document.getElementById('teacherReportContainer').style.display = 'none';
+            document.querySelector('.print-school-header').style.display = '';
             
             // Set date in print header
             const _d = document.getElementById('examDate').value;
@@ -2194,6 +2369,7 @@
             document.getElementById('missingRoomsList').style.display = 'none';
             document.getElementById('issuanceSheet').style.display = 'none';
             document.getElementById('reportSheet').style.display = 'none';
+            document.getElementById('seatingSheet').style.display = 'none';
             
             // Show print container with collection sheet
             const printContainer = document.getElementById('printContainer');
@@ -2203,6 +2379,7 @@
             document.getElementById('collectionSheet').style.display = 'block';
             document.getElementById('issuanceSheet').style.display = 'none';
             document.getElementById('reportSheet').style.display = 'none';
+            document.getElementById('seatingSheet').style.display = 'none';
             
             displayCollectionSheet();
         }
@@ -2247,6 +2424,16 @@
                     </div>
                 </div>
                 <table>
+                    <colgroup>
+                        <col class="col-class">
+                        <col class="col-room">
+                        <col class="col-from">
+                        <col class="col-to">
+                        <col class="col-total">
+                        <col class="col-absentees">
+                        <col class="col-copies">
+                        <col class="col-sign">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th rowspan="2">CLASS</th>
@@ -2266,7 +2453,17 @@
             `;
             
             sortedClasses.forEach((className, classIndex) => {
-                const rooms = groupedByClass[className];
+                const rooms = groupedByClass[className].slice().sort((a, b) => {
+                    const aStart = Number.isFinite(a.startNum) ? a.startNum : Number.MAX_SAFE_INTEGER;
+                    const bStart = Number.isFinite(b.startNum) ? b.startNum : Number.MAX_SAFE_INTEGER;
+                    if (aStart !== bStart) return aStart - bStart;
+
+                    const aEnd = Number.isFinite(a.endNum) ? a.endNum : Number.MAX_SAFE_INTEGER;
+                    const bEnd = Number.isFinite(b.endNum) ? b.endNum : Number.MAX_SAFE_INTEGER;
+                    if (aEnd !== bEnd) return aEnd - bEnd;
+
+                    return String(a.room || '').localeCompare(String(b.room || ''), undefined, { numeric: true });
+                });
                 let classTotal = 0;
                 let classCopies = 0;
                 
@@ -2358,6 +2555,7 @@
             currentView = 'issuance';
             document.getElementById('sheetTitle').textContent = 'ISSUANCE SHEET';
             document.getElementById('teacherReportContainer').style.display = 'none';
+            document.querySelector('.print-school-header').style.display = '';
             
             // Set date in print header
             const _d = document.getElementById('examDate').value;
@@ -2368,6 +2566,7 @@
             document.getElementById('missingRoomsList').style.display = 'none';
             document.getElementById('collectionSheet').style.display = 'none';
             document.getElementById('reportSheet').style.display = 'none';
+            document.getElementById('seatingSheet').style.display = 'none';
             
             // Show print container with issuance sheet
             const printContainer = document.getElementById('printContainer');
@@ -2377,6 +2576,7 @@
             document.getElementById('issuanceSheet').style.display = 'block';
             document.getElementById('collectionSheet').style.display = 'none';
             document.getElementById('reportSheet').style.display = 'none';
+            document.getElementById('seatingSheet').style.display = 'none';
             
             displayIssuanceSheet();
         }
@@ -2555,11 +2755,193 @@
             document.getElementById('issuanceSheet').innerHTML = html;
         }
 
+        function esc(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[ch]));
+        }
+
+        function getClassNumber(className) {
+            const raw = String(className || '').trim().toUpperCase();
+            const normalized = raw
+                .replace(/^CLASS\s+/i, '')
+                .replace(/^CL\s+/i, '')
+                .trim();
+            const first = normalized.split(/[\s-]+/)[0];
+            const parsed = parseInt(first, 10);
+            if (!isNaN(parsed)) return parsed;
+            return romanMap[first] || 0;
+        }
+
+        function isClassInSeatingGroup(className, group) {
+            const num = getClassNumber(className);
+            if (group === 'III-VIII') return num >= 3 && num <= 8;
+            if (group === 'IX-XII') return num >= 9 && num <= 12;
+            return false;
+        }
+
+        function normalizeRoomForSort(room) {
+            const text = String(room || '').trim().toUpperCase();
+            const match = text.match(/^([A-Z]+)[-\s]?(\d+)(.*)$/);
+            if (!match) return { block: text, num: Number.MAX_SAFE_INTEGER, suffix: '' };
+            return {
+                block: match[1],
+                num: parseInt(match[2], 10),
+                suffix: match[3] || ''
+            };
+        }
+
+        function compareRooms(a, b) {
+            const ra = normalizeRoomForSort(a);
+            const rb = normalizeRoomForSort(b);
+            const blockCompare = ra.block.localeCompare(rb.block);
+            if (blockCompare !== 0) return blockCompare;
+            if (ra.num !== rb.num) return ra.num - rb.num;
+            return ra.suffix.localeCompare(rb.suffix);
+        }
+
+        function compareSeatingEntries(a, b) {
+            const classCompare = (classOrder[a.class] || 999) - (classOrder[b.class] || 999);
+            if (classCompare !== 0) return classCompare;
+            const aStart = Number.isFinite(a.startNum) ? a.startNum : Number.MAX_SAFE_INTEGER;
+            const bStart = Number.isFinite(b.startNum) ? b.startNum : Number.MAX_SAFE_INTEGER;
+            if (aStart !== bStart) return aStart - bStart;
+            const aEnd = Number.isFinite(a.endNum) ? a.endNum : Number.MAX_SAFE_INTEGER;
+            const bEnd = Number.isFinite(b.endNum) ? b.endNum : Number.MAX_SAFE_INTEGER;
+            return aEnd - bEnd;
+        }
+
+        function seatingPlanLabel(group) {
+            return group === 'IX-XII' ? 'Classes IX TO XII' : 'Classes III TO VIII';
+        }
+
+        function formatSeatingClassParts(className) {
+            const raw = String(className || '').trim();
+            const num = getClassNumber(raw);
+            const romanByNum = { 3: 'III', 4: 'IV', 5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII' };
+            const section = raw.replace(/^(\d+|III|IV|V|VI|VII|VIII|IX|X|XI|XII)[\s-]*/i, '').trim();
+            return {
+                classLabel: romanByNum[num] || raw.split(/[\s-]+/)[0] || '',
+                sectionLabel: section || ''
+            };
+        }
+
+        async function showSeatingPlan(group) {
+            const defaultExamName = currentSeatingExamName || examName || 'ANNUAL EXAMINATION: 2025 - 2026';
+            const enteredExamName = prompt('Enter exam name for seating plan:', defaultExamName);
+            if (enteredExamName === null) return;
+            currentSeatingExamName = enteredExamName.trim() || defaultExamName;
+
+            currentView = 'seating';
+            currentSeatingPlanGroup = group === 'IX-XII' ? 'IX-XII' : 'III-VIII';
+            document.getElementById('sheetTitle').textContent = 'SEATING PLAN';
+            document.getElementById('teacherReportContainer').style.display = 'none';
+            document.querySelector('.print-school-header').style.display = 'none';
+            document.getElementById('summaryStats').style.display = 'none';
+            document.getElementById('missingRoomsList').style.display = 'none';
+
+            const printContainer = document.getElementById('printContainer');
+            printContainer.style.display = 'block';
+
+            document.getElementById('collectionSheet').style.display = 'none';
+            document.getElementById('issuanceSheet').style.display = 'none';
+            document.getElementById('reportSheet').style.display = 'none';
+            const seatingSheet = document.getElementById('seatingSheet');
+            seatingSheet.style.display = 'block';
+            seatingSheet.style.background = '#fff';
+            seatingSheet.style.color = '#000';
+            seatingSheet.style.minHeight = '500px';
+            seatingSheet.style.padding = '22px';
+
+            document.getElementById('printExamDate').textContent = seatingPlanLabel(currentSeatingPlanGroup);
+            try {
+                if (!Array.isArray(mappingData) || !mappingData.length) {
+                    seatingSheet.innerHTML = '<div class="loading">Loading seating plan...</div>';
+                    await loadSheet1Data();
+                }
+                displaySeatingPlan();
+            } catch (error) {
+                console.error('Seating plan render error:', error);
+                document.getElementById('seatingSheet').innerHTML = `<div class="alert error" style="display:block;">Could not build seating plan: ${esc(error.message || error)}</div>`;
+            }
+        }
+
+        function displaySeatingPlan() {
+            const sheet = document.getElementById('seatingSheet');
+            const group = currentSeatingPlanGroup || 'III-VIII';
+            if (!Array.isArray(mappingData) || !mappingData.length) {
+                sheet.innerHTML = '<div class="loading">Seating data is still loading. Please click the seating button again in a moment.</div>';
+                return;
+            }
+
+            const entries = mappingData
+                .filter(item => isClassInSeatingGroup(item.class, group))
+                .slice()
+                .sort((a, b) => compareRooms(a.room, b.room) || compareSeatingEntries(a, b));
+
+            if (!entries.length) {
+                const sampleClasses = mappingData.slice(0, 8).map(item => item.class).filter(Boolean).join(', ');
+                sheet.innerHTML = `<div class="loading">No seating data found for ${seatingPlanLabel(group)}. Loaded classes: ${esc(sampleClasses || 'none')}</div>`;
+                return;
+            }
+
+            const rooms = new Map();
+            entries.forEach(item => {
+                if (!rooms.has(item.room)) rooms.set(item.room, []);
+                rooms.get(item.room).push(item);
+            });
+
+            const roomCards = Array.from(rooms.entries())
+                .sort((a, b) => compareRooms(a[0], b[0]))
+                .map(([room, roomEntries]) => {
+                    const sortedEntries = roomEntries.slice().sort(compareSeatingEntries);
+                    const total = sortedEntries.reduce((sum, item) => sum + (typeof item.total === 'number' ? item.total : 0), 0);
+                    return `
+                        <div class="seating-room">
+                            <div class="seating-room-title">ROOM NO- ${room}</div>
+                            <div class="seating-room-body">
+                                ${sortedEntries.map(item => {
+                                    const parts = formatSeatingClassParts(item.class);
+                                    return `
+                                    <div class="seating-row">
+                                        <span>${esc(parts.classLabel)}</span>
+                                        <span>${esc(parts.sectionLabel)}</span>
+                                        <span class="num">${esc(item.startRoll)}</span>
+                                        <span>TO</span>
+                                        <span class="num">${esc(item.endRoll)}</span>
+                                        <span class="eq">=</span>
+                                        <span class="count">${esc(item.total)}</span>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                            <div class="seating-total"><span>TOTAL</span><span>${total}</span></div>
+                        </div>`;
+                }).join('');
+
+            sheet.innerHTML = `
+                <div class="seating-title">
+                    <h2>Bal Vidya Mandir, Sambhal</h2>
+                    <h3>${esc(currentSeatingExamName || examName || 'ANNUAL EXAMINATION: 2025 - 2026')}</h3>
+                    <h4>Seating Plan (${seatingPlanLabel(group)})</h4>
+                </div>
+                <div class="seating-grid">${roomCards}</div>
+                <div class="seating-signatures">
+                    <div>PARAG DEEP VAISH<span class="role">EXAM INCHARGE</span></div>
+                    <div>MANISH PANWAR<span class="role">PRINCIPAL</span></div>
+                </div>
+            `;
+        }
+
         // Show Report Sheet
         function showReportSheet() {
             currentView = 'report';
             document.getElementById('sheetTitle').textContent = 'ABSENT STUDENTS REPORT';
             document.getElementById('teacherReportContainer').style.display = 'none';
+            document.querySelector('.print-school-header').style.display = '';
             
             // Set date in print header
             const _d = document.getElementById('examDate').value;
