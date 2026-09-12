@@ -1071,7 +1071,7 @@
                 <div class="header-tagline">Sambhal — Examination Management System</div>
             </div>
             <div class="header-right">
-                <div id="examName">Half Yearly Examination 2025</div>
+                <div id="examName">Half Yearly Exam -26-27</div>
                 <div class="header-badge" id="sheetTitle">Collection Sheet</div>
             </div>
         </div>
@@ -1238,7 +1238,7 @@
         <div id="printContainer" class="print-container">
             <div class="print-school-header">
                 <div class="print-school-name">BAL VIDYA MANDIR, SCHOOL</div>
-                <div class="print-exam-name">Annual Examination 2026</div>
+                <div class="print-exam-name">Half Yearly Exam -26-27</div>
                 <div class="print-exam-date" id="printExamDate"></div>
             </div>
             
@@ -1608,7 +1608,6 @@
             };
         }
 
-        // Get subject for a class on selected date
         // Get subjects for a class on selected date — returns array (supports multi-subject rows)
         function getSubjectsForClass(className) {
             const selectedDate = document.getElementById('examDate').value;
@@ -1896,6 +1895,21 @@
             return noExamCount;
         }
 
+        // ── Sort helper: class number ascending (works for 3-12 & roman) ──
+        function getClassSortKey(className) {
+            if (!className) return { num: 999, section: '' };
+            const raw = String(className).trim().toUpperCase();
+            const numMatch = raw.match(/^(\d+)/);
+            if (numMatch) {
+                return { num: parseInt(numMatch[1], 10), section: raw };
+            }
+            const romanMatch = raw.match(/^(III|IV|V|VI|VII|VIII|IX|X|XI|XII)/);
+            if (romanMatch && romanMap[romanMatch[1]]) {
+                return { num: romanMap[romanMatch[1]], section: raw };
+            }
+            return { num: 999, section: raw };
+        }
+
         // Load absentees data from Workbook B and build detailed absent students list
         async function loadAbsenteesData() {
             try {
@@ -1990,22 +2004,16 @@
                     }
                 });
                 
-                // Sort absent students by class order (smallest to largest) and then by roll number
+                // ── SORT ABSENT STUDENTS: class number ascending → class name → roll number ──
                 absentStudentsData.sort((a, b) => {
-                    // First sort by class order
-                    const classAOrder = classOrder[a.class] || 999;
-                    const classBOrder = classOrder[b.class] || 999;
-                    if (classAOrder !== classBOrder) {
-                        return classAOrder - classBOrder;
-                    }
-                    
-                    // Then sort by roll number
+                    const ka = getClassSortKey(a.class);
+                    const kb = getClassSortKey(b.class);
+                    if (ka.num !== kb.num) return ka.num - kb.num;
+                    if (ka.section !== kb.section) return ka.section.localeCompare(kb.section);
                     const aNum = parseInt(a.rollNo);
                     const bNum = parseInt(b.rollNo);
-                    if (!isNaN(aNum) && !isNaN(bNum)) {
-                        return aNum - bNum;
-                    }
-                    return a.rollNo.localeCompare(b.rollNo);
+                    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+                    return String(a.rollNo).localeCompare(String(b.rollNo));
                 });
                 
                 console.log(`Loaded ${absentStudentsData.length} absent students`);
@@ -2062,13 +2070,12 @@
                 { rollNo: '35', name: 'VANSH KUMAR', class: '5 INN', subject: 'MATHS', room: 'D-11', date: selectedDate }
             ];
             
-            // Sort by class order
+            // ── SORT sample data using same helper ──
             absentStudentsData.sort((a, b) => {
-                const classAOrder = classOrder[a.class] || 999;
-                const classBOrder = classOrder[b.class] || 999;
-                if (classAOrder !== classBOrder) {
-                    return classAOrder - classBOrder;
-                }
+                const ka = getClassSortKey(a.class);
+                const kb = getClassSortKey(b.class);
+                if (ka.num !== kb.num) return ka.num - kb.num;
+                if (ka.section !== kb.section) return ka.section.localeCompare(kb.section);
                 return parseInt(a.rollNo) - parseInt(b.rollNo);
             });
         }
@@ -2346,10 +2353,10 @@
             });
             
             return Array.from(uniqueClasses).sort((a, b) => {
-                const aNum = parseInt(a.split(' ')[0]) || romanMap[a.split('-')[0]] || 0;
-                const bNum = parseInt(b.split(' ')[0]) || romanMap[b.split('-')[0]] || 0;
-                if (aNum !== bNum) return aNum - bNum;
-                return a.localeCompare(b);
+                const ka = getClassSortKey(a);
+                const kb = getClassSortKey(b);
+                if (ka.num !== kb.num) return ka.num - kb.num;
+                return ka.section.localeCompare(kb.section);
             });
         }
 
@@ -2408,10 +2415,10 @@
             
             // Sort classes
             const sortedClasses = Object.keys(groupedByClass).sort((a, b) => {
-                const aNum = parseInt(a.split(' ')[0]) || romanMap[a.split('-')[0]] || 0;
-                const bNum = parseInt(b.split(' ')[0]) || romanMap[b.split('-')[0]] || 0;
-                if (aNum !== bNum) return aNum - bNum;
-                return a.localeCompare(b);
+                const ka = getClassSortKey(a);
+                const kb = getClassSortKey(b);
+                if (ka.num !== kb.num) return ka.num - kb.num;
+                return ka.section.localeCompare(kb.section);
             });
             
             // Start building the table
@@ -2805,8 +2812,10 @@
         }
 
         function compareSeatingEntries(a, b) {
-            const classCompare = (classOrder[a.class] || 999) - (classOrder[b.class] || 999);
-            if (classCompare !== 0) return classCompare;
+            const ka = getClassSortKey(a.class);
+            const kb = getClassSortKey(b.class);
+            if (ka.num !== kb.num) return ka.num - kb.num;
+            if (ka.section !== kb.section) return ka.section.localeCompare(kb.section);
             const aStart = Number.isFinite(a.startNum) ? a.startNum : Number.MAX_SAFE_INTEGER;
             const bStart = Number.isFinite(b.startNum) ? b.startNum : Number.MAX_SAFE_INTEGER;
             if (aStart !== bStart) return aStart - bStart;
@@ -3223,9 +3232,10 @@
         }
         function sortClasses(arr) {
             return arr.slice().sort(function(a, b) {
-                const numA = parseInt(a), numB = parseInt(b);
-                if (numA !== numB) return numA - numB;
-                return a.localeCompare(b);
+                const ka = getClassSortKey(a);
+                const kb = getClassSortKey(b);
+                if (ka.num !== kb.num) return ka.num - kb.num;
+                return ka.section.localeCompare(kb.section);
             });
         }
 
